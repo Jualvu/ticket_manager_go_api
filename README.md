@@ -1,4 +1,4 @@
-### Backend API for simple ticket manager software
+### Backend API for a simple ticket manager software
 
 ## Setup
 
