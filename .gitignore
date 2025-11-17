@@ -1,0 +1,45 @@
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Go build cache and modules
+/bin/
+/build/
+/dist/
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Env files
+.env
+*.env
+
+# SQLite database files
+*.db
+*.sqlite
+*.sqlite3
+*.db-shm
+*.db-wal
+*.db-journal
+
+# IDE configs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Cursor AI editor files
+.cursor/
+.cursorrules
+.cursorignore
+
+# Temporary files
+tmp/
+*.tmp
