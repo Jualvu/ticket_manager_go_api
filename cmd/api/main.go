@@ -27,7 +27,7 @@ func main() {
 	mux.HandleFunc("/users", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
-			userHandler.GetAll(w, r)
+			userHandler.Get(w, r)
 			break
 		case http.MethodPost:
 			userHandler.Create(w, r)
