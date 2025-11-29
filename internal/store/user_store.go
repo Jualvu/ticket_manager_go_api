@@ -31,7 +31,7 @@ func NewUserStore(db *sql.DB) (UserStore) {
 }
 
 func (s *userStore) GetAll() ([]*models.User, error) {
-	stmt, err := s.db.Prepare("SELECT name, email, rol_id, creation_date, last_update_date FROM users;") 
+	stmt, err := s.db.Prepare("SELECT id, name, email, rol_id, creation_date, last_update_date FROM users;") 
 	if err != nil {
 		log.Fatal(err)
 		return nil, err
@@ -48,7 +48,8 @@ func (s *userStore) GetAll() ([]*models.User, error) {
 
 	for rows.Next() {
 		var curUser models.User
-		err = rows.Scan(&curUser.Name,
+		err = rows.Scan(&curUser.Id,
+						&curUser.Name,
 						&curUser.Email,
 						&curUser.Rol_id,
 						&curUser.Creation_date,

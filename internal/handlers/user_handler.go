@@ -26,13 +26,17 @@ func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json") // set the response content
 
+	res := map[string]any{
+		"success": true,
+		"userID": -1,
+		"message": "",
+	}
+
 	var createUserRequest user_dto.CreateUserRequest
 	err := json.NewDecoder(r.Body).Decode(&createUserRequest); if err != nil {
 		http.Error(w, "Invalid body content", http.StatusBadRequest)
 		return
 	}
-
-	fmt.Printf(createUserRequest.Name) // test
 
 	newUserID, err := h.userStore.Create(createUserRequest)
 	if err != nil {
@@ -40,10 +44,72 @@ func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	res["message"] = "Successfully created user."
+	res["userID"] = newUserID
+
+	json.NewEncoder(w).Encode(res)
+	return
+} 
+
+func (h *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPut {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return 
+	}
+
+	w.Header().Set("Content-Type", "application/json") // set the response content
+
 	res := map[string]any{
 		"success": true,
-		"user_id": newUserID,
+		"message": "",
 	}
+
+	var updateUserRequest user_dto.UpdateUserRequest
+	err := json.NewDecoder(r.Body).Decode(&updateUserRequest); if err != nil {
+		http.Error(w, "Invalid body content", http.StatusBadRequest)
+		return
+	}
+
+	err = h.userStore.Update(updateUserRequest)
+	if err != nil {
+		msg := fmt.Sprintf("Error when trying to update User with id [%v].", updateUserRequest.Id)
+		http.Error(w, msg, http.StatusInternalServerError)
+		return
+	}
+
+	res["message"] = fmt.Sprintf("Successfully updated user [%v].", updateUserRequest.Id)
+
+	json.NewEncoder(w).Encode(res)
+	return
+} 
+
+func (h *UserHandler) Delete(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodDelete {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return 
+	}
+
+	w.Header().Set("Content-Type", "application/json") // set the response content
+
+	res := map[string]any{
+		"success": true,
+		"message": "",
+	}
+
+	var deleteUserRequest user_dto.DeleteUserRequest
+	err := json.NewDecoder(r.Body).Decode(&deleteUserRequest); if err != nil {
+		http.Error(w, "Invalid body content", http.StatusBadRequest)
+		return
+	}
+
+	err = h.userStore.Delete(deleteUserRequest)
+	if err != nil {
+		msg := fmt.Sprintf("Error when trying to delete User with id [%v].", deleteUserRequest.Id)
+		http.Error(w, msg, http.StatusInternalServerError)
+		return
+	}
+
+	res["message"] = fmt.Sprintf("Successfully deleted user [%v].", deleteUserRequest.Id)
 
 	json.NewEncoder(w).Encode(res)
 	return

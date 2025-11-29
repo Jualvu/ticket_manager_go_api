@@ -16,3 +16,27 @@
         1. construct binary with: go build cmd/api/main.go
         2. Run the binary: ./main
 
+
+
+### Curl requests for testing
+
+## Users
+**NOTE: change id for a valid value
+
+### Get All
+    curl -X GET 'http://localhost:8080/users'
+
+### Get single User
+    curl -X GET 'http://localhost:8080/users?id=7'
+
+### Create
+    curl -X POST 'http://localhost:8080/users' \
+    -d '{"name": "UsuarioPrueba", "email": "usuarioprueba@gmail.com", "password": "password1", "rol_id": 1}'
+
+### Update
+    curl -X PUT 'http://localhost:8080/users' \
+    -d '{"id": 7, "name": "userUpdated", "email": "useremailupdated@gmail.com", "password": "passwordupdated", "rol_id": 2}'
+
+### Delete
+    curl -X DELETE 'http://localhost:8080/users' \
+    -d '{"id": 7}'
