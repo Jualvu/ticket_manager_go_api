@@ -1,13 +1,13 @@
 package models
 
 type Ticket struct {
-	Id 						int		`json:"id"`
-	Title 					string	`json:"title"` 
-	Description 			string	`json:"description"`
-	State_id 				int		`json:"state_id"`
-	Priority_id 			int		`json:"priority_id"`
-	Assigned_to_user_id 	int		`json:"assigned_to_user_id"`
-	Created_by_user_id 		int		`json:"created_by_user_id"`
-	Creation_date 			string	`json:"creation_date"`
-	Last_update_date 		string	`json:"last_update_date"`
+	Id 						int		
+	Title 					string	 
+	Description 			string	
+	State_id 				int		
+	Priority_id 			int		
+	Assigned_to_user_id 	int		
+	Created_by_user_id 		int		
+	Creation_date 			string	
+	Last_update_date 		string	
 }

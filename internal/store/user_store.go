@@ -17,7 +17,7 @@ type userStore struct {
 
 // public
 type UserStore interface {
-	GetAll() ([]models.User, error)
+	GetAll() ([]*models.User, error)
 	GetByID(id int) (*models.User, error)
 	Create(u user_dto.CreateUserRequest) (int64, error)
 	Update(u user_dto.UpdateUserRequest) error
@@ -30,7 +30,7 @@ func NewUserStore(db *sql.DB) (UserStore) {
 	return &us // -> return the user Store struct 
 }
 
-func (s *userStore) GetAll() ([]models.User, error) {
+func (s *userStore) GetAll() ([]*models.User, error) {
 	stmt, err := s.db.Prepare("SELECT name, email, rol_id, creation_date, last_update_date FROM users;") 
 	if err != nil {
 		log.Fatal(err)
@@ -38,7 +38,7 @@ func (s *userStore) GetAll() ([]models.User, error) {
 	}
 	defer stmt.Close() // -> make sure to close stmt pointer	
 	
-	var users []models.User 
+	var users []*models.User
 
 	rows, err := stmt.Query()
 	if err != nil {
@@ -58,7 +58,7 @@ func (s *userStore) GetAll() ([]models.User, error) {
 			return nil, err
 		}
 		fmt.Printf("Found user: [%s], created at [%v]\n", curUser.Name, curUser.Creation_date)
-		users = append(users, curUser)
+		users = append(users, &curUser)
 	}
 
 	return users, nil
@@ -83,7 +83,7 @@ func (s *userStore) GetByID(id int) (*models.User, error) {
 								 &user.Last_update_date)
 
 	if err != nil {
-		log.Fatal(err)	
+		log.Println(err)	
 		return nil, err
 	}
 

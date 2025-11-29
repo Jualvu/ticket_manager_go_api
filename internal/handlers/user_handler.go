@@ -5,7 +5,9 @@ import (
 	"net/http"
 	"encoding/json"
 	"github.com/jualvu/go-tickets-api/internal/store"
+	"github.com/jualvu/go-tickets-api/internal/models"
 	"github.com/jualvu/go-tickets-api/internal/models/dto/user_dto"
+	"strconv"
 )
 
 type UserHandler struct {
@@ -47,8 +49,7 @@ func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
 	return
 } 
 
-
-func (h *UserHandler) GetAll(w http.ResponseWriter, r *http.Request) {
+func (h *UserHandler) Get(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 		return 
@@ -56,17 +57,50 @@ func (h *UserHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json") // set the response content
 
-	users, err := h.userStore.GetAll()
-	if err != nil {
-		http.Error(w, "Error when trying to get all users.", http.StatusInternalServerError)
-		return
-	}
-
+	var users []*models.User
+	
 	res := map[string]any{
 		"success": true,
-		"user_id": users,
+		"users": users,
+		"message": "",
+	}
+	
+	id_string := r.URL.Query().Get("id") // Check if a specific user is being requested
+	
+	if id_string != "" {
+		id, err := strconv.Atoi(id_string)
+
+		if err != nil {
+			res["success"] = false
+			res["message"] = fmt.Sprintf("Error when trying to parse ID provided: [%v].", id_string)
+			json.NewEncoder(w).Encode(res)
+			return
+		}
+
+		userFound, err := h.userStore.GetByID(id)
+		if err != nil {
+			res["success"] = false
+			res["message"] = fmt.Sprintf("User with ID [%v] not found.", id)
+			json.NewEncoder(w).Encode(res)
+			return
+		}
+
+		users = append(users, userFound)
+		res["message"] = fmt.Sprintf("Success: User with ID [%v] found.", id)
+
+	} else {
+		all_users, err := h.userStore.GetAll()
+		if err != nil {
+			http.Error(w, "Error when trying to get all users.", http.StatusInternalServerError)
+			return
+		}
+		users = all_users
+		res["message"] = "Success: All user retrieved."
 	}
 
+	res["users"] = users
 	json.NewEncoder(w).Encode(res)
 	return
 } 
+
+
