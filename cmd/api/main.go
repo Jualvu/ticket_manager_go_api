@@ -32,6 +32,12 @@ func main() {
 		case http.MethodPost:
 			userHandler.Create(w, r)
 			break
+		case http.MethodPut:
+			userHandler.Update(w, r)
+			break
+		case http.MethodDelete:
+			userHandler.Delete(w, r)
+			break
 		default:
 			http.Error(w, "Method not allowed for /tickets endpoint.", http.StatusMethodNotAllowed)
 		}
