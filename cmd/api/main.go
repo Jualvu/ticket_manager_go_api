@@ -21,7 +21,6 @@ func main() {
 	defer dbConnection.Close()
 
 	mux := http.NewServeMux()
-
 	userStore := store.NewUserStore(dbConnection)
 	userHandler := handlers.NewUserHandler(userStore)
 	mux.HandleFunc("/users", func(w http.ResponseWriter, r *http.Request) {
@@ -39,23 +38,32 @@ func main() {
 			userHandler.Delete(w, r)
 			break
 		default:
-			http.Error(w, "Method not allowed for /tickets endpoint.", http.StatusMethodNotAllowed)
+			http.Error(w, "Method not allowed for /users endpoint.", http.StatusMethodNotAllowed)
 		}
 	})
 
 	// ticket store
 
-	// mux.HandleFunc("/tickets", func(w http.ResponseWriter, r *http.Request) {
-	// 	switch r.Method {
-	// 	case http.MethodGet:
-			
-	// 	case http.MethodPost:
-
-	// 	default:
-	// 		http.Error(w, "Method not allowed for /tickets endpoint.", http.StatusMethodNotAllowed)
-
-	// 	}
-	// })
+	ticketStore := store.NewTicketStore(dbConnection)
+	ticketHandler := handlers.NewTicketHandler(ticketStore)
+	mux.HandleFunc("/tickets", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodGet:
+			ticketHandler.Get(w, r)
+			break
+		case http.MethodPost:
+			ticketHandler.Create(w, r)
+			break
+		case http.MethodPut:
+			ticketHandler.Update(w, r)
+			break
+		case http.MethodDelete:
+			ticketHandler.Delete(w, r)
+			break
+		default:
+			http.Error(w, "Method not allowed for /tickets endpoint.", http.StatusMethodNotAllowed)
+		}
+	})
 
 	// comment store
 
