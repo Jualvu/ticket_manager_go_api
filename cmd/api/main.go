@@ -21,6 +21,9 @@ func main() {
 	defer dbConnection.Close()
 
 	mux := http.NewServeMux()
+
+	// user store
+
 	userStore := store.NewUserStore(dbConnection)
 	userHandler := handlers.NewUserHandler(userStore)
 	mux.HandleFunc("/users", func(w http.ResponseWriter, r *http.Request) {
@@ -67,7 +70,26 @@ func main() {
 
 	// comment store
 
-
+	commentStore := store.NewCommentStore(dbConnection)
+	commentHandler := handlers.NewCommentHandler(commentStore)
+	mux.HandleFunc("/comments", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodGet:
+			commentHandler.Get(w, r)
+			break
+		case http.MethodPost:
+			commentHandler.Create(w, r)
+			break
+		case http.MethodPut:
+			commentHandler.Update(w, r)
+			break
+		case http.MethodDelete:
+			commentHandler.Delete(w, r)
+			break
+		default:
+			http.Error(w, "Method not allowed for /comments endpoint.", http.StatusMethodNotAllowed)
+		}
+	})
 	
 
 	log.Println("API Server listening on PORT :8080")

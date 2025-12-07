@@ -129,7 +129,7 @@ func (s *ticketStore) Create(createTicketRequest ticket_dto.CreateTicketRequest)
 }
 
 func (s *ticketStore) Update(updateTicketRequest ticket_dto.UpdateTicketRequest) error {
-	stmt, err := s.db.Prepare("UPDATE tickets AS t SET t.title = ?, t.description = ?, t.state_id = ?, t.priority_id = ?, t.assigned_to_user_id = ?, t.last_update_date = ? WHERE t.id = ?;")
+	stmt, err := s.db.Prepare("UPDATE tickets SET title = ?, description = ?, state_id = ?, priority_id = ?, assigned_to_user_id = ?, last_update_date = ? WHERE id = ?;")
 	if err != nil {
 		log.Fatal(err)
 		return err

@@ -38,7 +38,7 @@ CREATE TABLE tickets (
     creation_date TEXT DEFAULT (datetime('now')),
     last_update_date TEXT DEFAULT (datetime('now')),
     FOREIGN KEY (state_id) REFERENCES states(id),
-    FOREIGN KEY (priority_id) REFERENCES priorities(id)
+    FOREIGN KEY (priority_id) REFERENCES priorities(id),
     FOREIGN KEY (assigned_to_user_id) REFERENCES users(id),
     FOREIGN KEY (created_by_user_id) REFERENCES users(id)
 );
