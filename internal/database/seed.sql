@@ -12,7 +12,7 @@ INSERT INTO users (id, name, email, password, rol_id, creation_date, last_update
 VALUES
 (1, 'Alice Johnson', 'alice@example.com', 'hashed_password_1', 1, datetime('now'), datetime('now')),
 (2, 'Bob Smith', 'bob@example.com', 'hashed_password_2', 2, datetime('now'), datetime('now')),
-(3, 'Charlie Brown', 'charlie@example.com', 'hashed_password_3', 3, datetime('now'), datetime('now'));
+(3, 'Charlie Brown', 'charlie@example.com', 'hashed_password_3', 2, datetime('now'), datetime('now'));
 
 -- ========================
 -- States
