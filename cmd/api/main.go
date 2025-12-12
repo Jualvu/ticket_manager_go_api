@@ -11,9 +11,6 @@ import (
 
 func main() {
 
-	// basically define each endpoint here and call the handlers on each method type
-	// we need to manage users - tickets - comments
-
 	dbConnection, err := sql.Open("sqlite3", "./internal/database/ticket_system.db")
 	if err != nil {
 		fmt.Errorf("Error when trying to open the Database ticket_system.db")
@@ -21,10 +18,11 @@ func main() {
 	defer dbConnection.Close()
 
 	mux := http.NewServeMux()
-
-	// user store
-
 	userStore := store.NewUserStore(dbConnection)
+	ticketStore := store.NewTicketStore(dbConnection)
+	commentStore := store.NewCommentStore(dbConnection)
+
+	// users
 	userHandler := handlers.NewUserHandler(userStore)
 	mux.HandleFunc("/users", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
@@ -45,9 +43,19 @@ func main() {
 		}
 	})
 
-	// ticket store
+	// Auth Login
+	authHandler := handlers.NewAuthHandler(userStore)
+	mux.HandleFunc("/auth/login", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodPost:
+			authHandler.Login(w, r)
+			break
+		default:
+			http.Error(w, "Method not allowed for /users endpoint.", http.StatusMethodNotAllowed)
+		}
+	})
 
-	ticketStore := store.NewTicketStore(dbConnection)
+	// ticket
 	ticketHandler := handlers.NewTicketHandler(ticketStore)
 	mux.HandleFunc("/tickets", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
@@ -68,9 +76,7 @@ func main() {
 		}
 	})
 
-	// comment store
-
-	commentStore := store.NewCommentStore(dbConnection)
+	// comment
 	commentHandler := handlers.NewCommentHandler(commentStore)
 	mux.HandleFunc("/comments", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
