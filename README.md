@@ -45,3 +45,9 @@
 ### Delete
     curl -X DELETE 'http://localhost:8080/users' \
     -d '{"id": 7}'
+
+## Auth
+
+### Login 
+    curl -X POST 'http://localhost:8080/auth/login' \
+    -d '{"email": "bob@example.com", "password": "hashed_password_2"}'

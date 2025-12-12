@@ -19,6 +19,7 @@ type userStore struct {
 type UserStore interface {
 	GetAll() ([]*models.User, error)
 	GetByID(id int) (*models.User, error)
+	GetByEmailAndPassword(email, password string) (*models.User, error)
 	Create(u user_dto.CreateUserRequest) (int64, error)
 	Update(u user_dto.UpdateUserRequest) error
 	Delete(id user_dto.DeleteUserRequest) error
@@ -89,6 +90,33 @@ func (s *userStore) GetByID(id int) (*models.User, error) {
 	}
 
 	fmt.Printf("User with ID [%v] found: %v \n", id, user.Name)
+	return &user, nil
+}
+
+func (s *userStore) GetByEmailAndPassword(email, password string) (*models.User, error) {
+	stmt, err := s.db.Prepare("SELECT id, name, email, rol_id, creation_date, last_update_date FROM users AS u WHERE u.email = ? AND u.password = ?")
+	if err != nil { 
+		log.Fatal(err)	
+		return nil, err
+	}
+	
+	defer stmt.Close()
+	
+	var user models.User
+
+	err = stmt.QueryRow(email, password).Scan(&user.Id,
+											  &user.Name,
+											  &user.Email,
+											  &user.Rol_id,
+											  &user.Creation_date,
+											  &user.Last_update_date)
+
+	if err != nil {
+		log.Println(err)	
+		return nil, err
+	}
+
+	fmt.Printf("User with Email [%v] and Password [%v] found: %v \n", email, password, user.Name)
 	return &user, nil
 }
 
