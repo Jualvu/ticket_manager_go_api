@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"fmt"
 	"database/sql"
+	"github.com/jualvu/go-tickets-api/internal/middleware"
 	"github.com/jualvu/go-tickets-api/internal/store"
 	"github.com/jualvu/go-tickets-api/internal/handlers"
 )
@@ -96,8 +97,9 @@ func main() {
 			http.Error(w, "Method not allowed for /comments endpoint.", http.StatusMethodNotAllowed)
 		}
 	})
-	
 
+	middleWareHandler := middleware.CORSMiddleWare(mux) 
+	
 	log.Println("API Server listening on PORT :8080")
-	http.ListenAndServe(":8080", mux)
+	http.ListenAndServe(":8080", middleWareHandler)
 }
