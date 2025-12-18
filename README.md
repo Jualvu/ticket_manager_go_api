@@ -97,5 +97,11 @@
 ## Auth
 
 ### Login 
+
+# normal user
     curl -X POST 'http://localhost:8080/auth/login' \
-    -d '{"email": "bob@example.com", "password": "hashed_password_2"}'
+    -d '{"email": "bob@example.com", "password": "hashed_password_1"}'
+
+# admin
+    curl -X POST 'http://localhost:8080/auth/login' \
+    -d '{"email": "alice@example.com", "password": "hashed_password_1"}'
