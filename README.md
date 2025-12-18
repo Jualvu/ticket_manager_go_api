@@ -29,25 +29,79 @@
 **NOTE: change id for a valid value
 
 ### Get All
-    curl -X GET 'http://localhost:8080/users'
+    curl -X GET 'http://localhost:8080/users/'
 
 ### Get single User
-    curl -X GET 'http://localhost:8080/users?id=7'
+    curl -X GET 'http://localhost:8080/users/3'
 
 ### Create
-    curl -X POST 'http://localhost:8080/users' \
+    curl -X POST 'http://localhost:8080/users/' \
     -d '{"name": "UsuarioPrueba", "email": "usuarioprueba@gmail.com", "password": "password1", "rol_id": 1}'
 
 ### Update
-    curl -X PUT 'http://localhost:8080/users' \
-    -d '{"id": 7, "name": "userUpdated", "email": "useremailupdated@gmail.com", "password": "passwordupdated", "rol_id": 2}'
+    curl -X PUT 'http://localhost:8080/users/4' \
+    -d '{"name": "userUpdated", "email": "useremailupdated@gmail.com", "password": "passwordupdated", "rol_id": 2}'
 
 ### Delete
-    curl -X DELETE 'http://localhost:8080/users' \
-    -d '{"id": 7}'
+    curl -X DELETE 'http://localhost:8080/users/4'
+
+
+
+
+
+## Tickets
+**NOTE: change id for a valid value
+
+### Get All
+    curl -X GET 'http://localhost:8080/tickets/'
+
+### Get single User
+    curl -X GET 'http://localhost:8080/tickets/3'
+
+### Create
+    curl -X POST 'http://localhost:8080/tickets/' \
+    -d '{"title": "New ticket for testing create", "description": "This is a new ticket description", "state_id": 1, "priority_id": 1, "assigned_to_user_id": 1, "created_by_user_id": 2}'
+
+### Update
+    curl -X PUT 'http://localhost:8080/tickets/4' \
+    -d '{"title": "New ticket testing Update", "description": "This is a ticket to test update", "state_id": 2, "priority_id": 2, "assigned_to_user_id": 3}'
+
+### Delete
+    curl -X DELETE 'http://localhost:8080/tickets/4'
+
+
+
+
+## Comments
+**NOTE: change id for a valid value
+
+### Get All
+    curl -X GET 'http://localhost:8080/comments/'
+
+### Get single User
+    curl -X GET 'http://localhost:8080/comments/3'
+
+### Create
+    curl -X POST 'http://localhost:8080/comments/' \
+    -d '{"content": "New comment for testing create", "created_by_user_id": 2, "ticket_id": 1}'
+
+### Update
+    curl -X PUT 'http://localhost:8080/comments/4' \
+    -d '{"content": "New comment testing update"}'
+
+### Delete
+    curl -X DELETE 'http://localhost:8080/comments/4'
+
+
 
 ## Auth
 
 ### Login 
+
+# normal user
     curl -X POST 'http://localhost:8080/auth/login' \
-    -d '{"email": "bob@example.com", "password": "hashed_password_2"}'
+    -d '{"email": "bob@example.com", "password": "hashed_password_1"}'
+
+# admin
+    curl -X POST 'http://localhost:8080/auth/login' \
+    -d '{"email": "alice@example.com", "password": "hashed_password_1"}'

@@ -25,7 +25,7 @@ func main() {
 
 	// users
 	userHandler := handlers.NewUserHandler(userStore)
-	mux.HandleFunc("/users", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/users/", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
 			userHandler.Get(w, r)
@@ -58,7 +58,7 @@ func main() {
 
 	// ticket
 	ticketHandler := handlers.NewTicketHandler(ticketStore)
-	mux.HandleFunc("/tickets", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/tickets/", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
 			ticketHandler.Get(w, r)
@@ -79,7 +79,7 @@ func main() {
 
 	// comment
 	commentHandler := handlers.NewCommentHandler(commentStore)
-	mux.HandleFunc("/comments", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/comments/", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
 			commentHandler.Get(w, r)

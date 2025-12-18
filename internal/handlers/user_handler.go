@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"strings"
 	"net/http"
 	"encoding/json"
 	"github.com/jualvu/go-tickets-api/internal/store"
@@ -64,11 +65,29 @@ func (h *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
 		"message": "",
 	}
 
+	id_string := strings.TrimPrefix(r.URL.Path, "/users/")
+	if id_string == "" {
+		res["success"] = false
+		res["message"] = "No user ID provided to Update."
+		json.NewEncoder(w).Encode(res)
+		return
+	}
+
+	id, err := strconv.Atoi(id_string)
+	if err != nil {
+		res["success"] = false
+		res["message"] = fmt.Sprintf("Error when trying to parse ID provided: [%v].", id_string)
+		json.NewEncoder(w).Encode(res)
+		return
+	}
+
 	var updateUserRequest user_dto.UpdateUserRequest
-	err := json.NewDecoder(r.Body).Decode(&updateUserRequest); if err != nil {
+	err = json.NewDecoder(r.Body).Decode(&updateUserRequest); if err != nil {
 		http.Error(w, "Invalid body content", http.StatusBadRequest)
 		return
 	}
+
+	updateUserRequest.Id = id
 
 	err = h.userStore.Update(updateUserRequest)
 	if err != nil {
@@ -96,11 +115,24 @@ func (h *UserHandler) Delete(w http.ResponseWriter, r *http.Request) {
 		"message": "",
 	}
 
-	var deleteUserRequest user_dto.DeleteUserRequest
-	err := json.NewDecoder(r.Body).Decode(&deleteUserRequest); if err != nil {
-		http.Error(w, "Invalid body content", http.StatusBadRequest)
+	id_string := strings.TrimPrefix(r.URL.Path, "/users/")
+	if id_string == "" {
+		res["success"] = false
+		res["message"] = "No user ID provided to Delete."
+		json.NewEncoder(w).Encode(res)
 		return
 	}
+
+	id, err := strconv.Atoi(id_string)
+	if err != nil {
+		res["success"] = false
+		res["message"] = fmt.Sprintf("Error when trying to parse ID provided: [%v].", id_string)
+		json.NewEncoder(w).Encode(res)
+		return
+	}
+
+	var deleteUserRequest user_dto.DeleteUserRequest
+	deleteUserRequest.Id = id
 
 	err = h.userStore.Delete(deleteUserRequest)
 	if err != nil {
@@ -131,11 +163,20 @@ func (h *UserHandler) Get(w http.ResponseWriter, r *http.Request) {
 		"message": "",
 	}
 	
-	id_string := r.URL.Query().Get("id") // Check if a specific user is being requested
+	id_string := strings.TrimPrefix(r.URL.Path, "/users/")
 	
-	if id_string != "" {
-		id, err := strconv.Atoi(id_string)
+	if id_string == "" {
+		all_users, err := h.userStore.GetAll()
+		if err != nil {
+			http.Error(w, "Error when trying to get all users.", http.StatusInternalServerError)
+			return
+		}
+		users = all_users
+		res["message"] = "Success: All user retrieved."
 
+	} else {
+
+		id, err := strconv.Atoi(id_string)
 		if err != nil {
 			res["success"] = false
 			res["message"] = fmt.Sprintf("Error when trying to parse ID provided: [%v].", id_string)
@@ -153,15 +194,6 @@ func (h *UserHandler) Get(w http.ResponseWriter, r *http.Request) {
 
 		users = append(users, userFound)
 		res["message"] = fmt.Sprintf("Success: User with ID [%v] found.", id)
-
-	} else {
-		all_users, err := h.userStore.GetAll()
-		if err != nil {
-			http.Error(w, "Error when trying to get all users.", http.StatusInternalServerError)
-			return
-		}
-		users = all_users
-		res["message"] = "Success: All user retrieved."
 	}
 
 	res["users"] = users
