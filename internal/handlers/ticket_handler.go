@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"strings"
 	"net/http"
 	"encoding/json"
 	"github.com/jualvu/go-tickets-api/internal/store"
@@ -64,11 +65,29 @@ func (h *TicketHandler) Update(w http.ResponseWriter, r *http.Request) {
 		"message": "",
 	}
 
+	id_string := strings.TrimPrefix(r.URL.Path, "/tickets/")
+	if id_string == "" {
+		res["success"] = false
+		res["message"] = "No ticket ID provided to Update."
+		json.NewEncoder(w).Encode(res)
+		return
+	}
+
+	id, err := strconv.Atoi(id_string)
+	if err != nil {
+		res["success"] = false
+		res["message"] = fmt.Sprintf("Error when trying to parse ID provided: [%v].", id_string)
+		json.NewEncoder(w).Encode(res)
+		return
+	}
+
 	var updateTicketRequest ticket_dto.UpdateTicketRequest
-	err := json.NewDecoder(r.Body).Decode(&updateTicketRequest); if err != nil {
+	err = json.NewDecoder(r.Body).Decode(&updateTicketRequest); if err != nil {
 		http.Error(w, "Invalid body content", http.StatusBadRequest)
 		return
 	}
+	
+	updateTicketRequest.Id = id
 
 	err = h.ticketStore.Update(updateTicketRequest)
 	if err != nil {
@@ -96,11 +115,24 @@ func (h *TicketHandler) Delete(w http.ResponseWriter, r *http.Request) {
 		"message": "",
 	}
 
-	var deleteTicketRequest ticket_dto.DeleteTicketRequest
-	err := json.NewDecoder(r.Body).Decode(&deleteTicketRequest); if err != nil {
-		http.Error(w, "Invalid body content", http.StatusBadRequest)
+	id_string := strings.TrimPrefix(r.URL.Path, "/tickets/")
+	if id_string == "" {
+		res["success"] = false
+		res["message"] = "No ticket ID provided to Delete."
+		json.NewEncoder(w).Encode(res)
 		return
 	}
+
+	id, err := strconv.Atoi(id_string)
+	if err != nil {
+		res["success"] = false
+		res["message"] = fmt.Sprintf("Error when trying to parse ID provided: [%v].", id_string)
+		json.NewEncoder(w).Encode(res)
+		return
+	}
+
+	var deleteTicketRequest ticket_dto.DeleteTicketRequest
+	deleteTicketRequest.Id = id
 
 	err = h.ticketStore.Delete(deleteTicketRequest)
 	if err != nil {
@@ -131,9 +163,20 @@ func (h *TicketHandler) Get(w http.ResponseWriter, r *http.Request) {
 		"message": "",
 	}
 
-	id_string := r.URL.Query().Get("id") // Check if a specific ticket is being requested
-	
-	if id_string != "" {
+	id_string := strings.TrimPrefix(r.URL.Path, "/tickets/")
+
+	if id_string == "" {
+		all_tickets, err := h.ticketStore.GetAll()
+		if err != nil {
+			http.Error(w, "Error when trying to get all tickets.", http.StatusInternalServerError)
+			return
+		}
+
+		tickets = all_tickets
+		res["message"] = "Success: All tickets retrieved."
+
+	} else {
+
 		id, err := strconv.Atoi(id_string)
 
 		if err != nil {
@@ -153,17 +196,6 @@ func (h *TicketHandler) Get(w http.ResponseWriter, r *http.Request) {
 
 		tickets = append(tickets, ticketFound)
 		res["message"] = fmt.Sprintf("Success: Ticket with ID [%v] found.", id)
-
-		} else {
-
-		all_tickets, err := h.ticketStore.GetAll()
-		if err != nil {
-			http.Error(w, "Error when trying to get all tickets.", http.StatusInternalServerError)
-			return
-		}
-
-		tickets = all_tickets
-		res["message"] = "Success: All tickets retrieved."
 	}
 
 	res["tickets"] = tickets

@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"strings"
 	"net/http"
 	"encoding/json"
 	"github.com/jualvu/go-tickets-api/internal/store"
@@ -64,11 +65,28 @@ func (h *CommentHandler) Update(w http.ResponseWriter, r *http.Request) {
 		"message": "",
 	}
 
+	id_string := strings.TrimPrefix(r.URL.Path, "/comments/")
+	if id_string == "" {
+		res["success"] = false
+		res["message"] = "No comment ID provided to Update."
+		json.NewEncoder(w).Encode(res)
+		return
+	}
+
+	id, err := strconv.Atoi(id_string)
+	if err != nil {
+		res["success"] = false
+		res["message"] = fmt.Sprintf("Error when trying to parse ID provided: [%v].", id_string)
+		json.NewEncoder(w).Encode(res)
+		return
+	}
+
 	var updateCommentRequest comment_dto.UpdateCommentRequest
-	err := json.NewDecoder(r.Body).Decode(&updateCommentRequest); if err != nil {
+	err = json.NewDecoder(r.Body).Decode(&updateCommentRequest); if err != nil {
 		http.Error(w, "Invalid body content", http.StatusBadRequest)
 		return
 	}
+	updateCommentRequest.Id = id
 
 	err = h.commentStore.Update(updateCommentRequest)
 	if err != nil {
@@ -96,11 +114,24 @@ func (h *CommentHandler) Delete(w http.ResponseWriter, r *http.Request) {
 		"message": "",
 	}
 
-	var deleteCommentRequest comment_dto.DeleteCommentRequest
-	err := json.NewDecoder(r.Body).Decode(&deleteCommentRequest); if err != nil {
-		http.Error(w, "Invalid body content", http.StatusBadRequest)
+	id_string := strings.TrimPrefix(r.URL.Path, "/comments/")
+	if id_string == "" {
+		res["success"] = false
+		res["message"] = "No comment ID provided to Delete."
+		json.NewEncoder(w).Encode(res)
 		return
 	}
+
+	id, err := strconv.Atoi(id_string)
+	if err != nil {
+		res["success"] = false
+		res["message"] = fmt.Sprintf("Error when trying to parse ID provided: [%v].", id_string)
+		json.NewEncoder(w).Encode(res)
+		return
+	}
+
+	var deleteCommentRequest comment_dto.DeleteCommentRequest
+	deleteCommentRequest.Id = id 
 
 	err = h.commentStore.Delete(deleteCommentRequest)
 	if err != nil {
@@ -131,11 +162,21 @@ func (h *CommentHandler) Get(w http.ResponseWriter, r *http.Request) {
 		"message": "",
 	}
 
-	id_string := r.URL.Query().Get("id")  // Check if a specific comment is being requested
+	id_string := strings.TrimPrefix(r.URL.Path, "/comments/")
 
-	if id_string != "" {
+	if id_string == "" {
+		all_comments, err := h.commentStore.GetAll()
+		if err != nil {
+			res["success"] = false
+			http.Error(w, "Error when trying to get all comments.", http.StatusInternalServerError)
+			return
+		}	
+		comments = all_comments
+		res["message"] = "Success: All comments retrieved."
+
+	} else {
+
 		id, err := strconv.Atoi(id_string)
-
 		if err != nil {
 			res["success"] = false
 			res["message"] = fmt.Sprintf("Error when trying to parse ID provided: [%v].", id_string)
@@ -153,17 +194,6 @@ func (h *CommentHandler) Get(w http.ResponseWriter, r *http.Request) {
 
 		comments = append(comments, commentFound)
 		res["comments"] = fmt.Sprintf("Success: Comment with ID [%v] found.", id)
-
-	} else {
-
-		all_comments, err := h.commentStore.GetAll()
-		if err != nil {
-			res["success"] = false
-			http.Error(w, "Error when trying to get all comments.", http.StatusInternalServerError)
-			return
-		}	
-		comments = all_comments
-		res["message"] = "Success: All comments retrieved."
 	}
  	
 	res["comments"] = comments
